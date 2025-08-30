@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - College Management System</title>
+    <meta name="theme-color" content="#3498db">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .offline-icon {
+            font-size: 6em;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .offline-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .offline-message {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .offline-features {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .offline-features h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .feature-list {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li::before {
+            content: "✓ ";
+            color: #2ecc71;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .retry-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .retry-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+        
+        .retry-button:active {
+            transform: translateY(0);
+        }
+        
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-status.offline {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+        
+        .connection-status.online {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+        }
+        
+        .tips-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .tips-section h4 {
+            margin-bottom: 15px;
+            color: #f39c12;
+        }
+        
+        .tips-list {
+            list-style: none;
+        }
+        
+        .tips-list li {
+            padding: 5px 0;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .tips-list li::before {
+            content: "💡 ";
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .offline-title {
+                font-size: 2em;
+            }
+            
+            .offline-message {
+                font-size: 1em;
+            }
+            
+            .offline-icon {
+                font-size: 4em;
+            }
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        
+        <p class="offline-message">
+            Don't worry! You can still access some features of the College Management System while offline.
+        </p>
+        
+        <div class="offline-features">
+            <h3>Available Offline Features:</h3>
+            <ul class="feature-list">
+                <li>View cached student dashboard</li>
+                <li>Access previously loaded assignments</li>
+                <li>Review downloaded study materials</li>
+                <li>Use the AI chatbot (limited responses)</li>
+                <li>View cached timetable and grades</li>
+                <li>Browse offline library resources</li>
+            </ul>
+        </div>
+        
+        <div class="loading-spinner" id="loading-spinner"></div>
+        
+        <button class="retry-button" onclick="checkConnection()" id="retry-button">
+            Try Again
+        </button>
+        
+        <div class="connection-status offline" id="connection-status">
+            🔴 No internet connection detected
+        </div>
+        
+        <div class="tips-section">
+            <h4>Tips for Better Offline Experience:</h4>
+            <ul class="tips-list">
+                <li>Visit pages while online to cache them for offline use</li>
+                <li>Download important documents when connected</li>
+                <li>Your offline actions will sync when connection returns</li>
+                <li>Enable notifications to stay updated</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            const retryButton = document.getElementById('retry-button');
+            
+            if (navigator.onLine) {
+                statusElement.textContent = '🟢 Connection restored! Redirecting...';
+                statusElement.className = 'connection-status online';
+                retryButton.textContent = 'Redirecting...';
+                retryButton.disabled = true;
+                
+                // Redirect to main app after a short delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.textContent = '🔴 No internet connection detected';
+                statusElement.className = 'connection-status offline';
+                retryButton.textContent = 'Try Again';
+                retryButton.disabled = false;
+            }
+        }
+        
+        // Check connection with loading state
+        function checkConnection() {
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const retryButton = document.getElementById('retry-button');
+            
+            loadingSpinner.style.display = 'block';
+            retryButton.textContent = 'Checking...';
+            retryButton.disabled = true;
+            
+            // Simulate checking process
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                updateConnectionStatus();
+            }, 1500);
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Initial status check
+        updateConnectionStatus();
+        
+        // Periodic connection check
+        setInterval(updateConnectionStatus, 5000);
+        
+        // Service Worker messaging
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'CACHE_UPDATED') {
+                    showCacheUpdateNotification();
+                }
+            });
+        }
+        
+        function showCacheUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(46, 204, 113, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-size: 0.9em;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = '✅ App updated! New content available offline.';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+        
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Handle back button
+        window.addEventListener('popstate', () => {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'r' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                checkConnection();
+            } else if (event.key === 'Escape') {
+                if (navigator.onLine) {
+                    window.location.href = '/';
+                }
+            }
+        });
+        
+        // Touch gestures for mobile
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        document.addEventListener('touchstart', (event) => {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+        
+        document.addEventListener('touchend', (event) => {
+            touchEndY = event.changedTouches[0].screenY;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeDistance = touchStartY - touchEndY;
+            const minSwipeDistance = 50;
+            
+            // Swipe up to retry
+            if (swipeDistance > minSwipeDistance) {
+                checkConnection();
+            }
+        }
+        
+        // Analytics for offline usage
+        function trackOfflineUsage() {
+            const offlineData = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                referrer: document.referrer,
+                connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+            };
+            
+            // Store offline analytics data
+            if ('localStorage' in window) {
+                const existingData = JSON.parse(localStorage.getItem('offlineAnalytics') || '[]');
+                existingData.push(offlineData);
+                
+                // Keep only last 50 entries
+                if (existingData.length > 50) {
+                    existingData.splice(0, existingData.length - 50);
+                }
+                
+                localStorage.setItem('offlineAnalytics', JSON.stringify(existingData));
+            }
+        }
+        
+        // Track this offline visit
+        trackOfflineUsage();
+        
+        // Show helpful shortcuts
+        setTimeout(() => {
+            const shortcutsInfo = document.createElement('div');
+            shortcutsInfo.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-size: 0.8em;
+                opacity: 0.8;
+                z-index: 1000;
+            `;
+            shortcutsInfo.innerHTML = `
+                <strong>Shortcuts:</strong><br>
+                Ctrl+R: Retry connection<br>
+                Swipe up: Check connection<br>
+                Esc: Return to app (if online)
+            `;
+            
+            document.body.appendChild(shortcutsInfo);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                shortcutsInfo.style.opacity = '0';
+                setTimeout(() => shortcutsInfo.remove(), 300);
+            }, 10000);
+        }, 3000);
+    </script>
+</body>
+</html>
