@@ -1,0 +1,2 @@
+{"timestamp":"2025-08-29 09:38:44","ip":"::1","user_agent":"curl\/7.68.0","user_id":"anonymous","event":"csrf_token_mismatch","details":"Login form","severity":"WARNING"}
+{"timestamp":"2025-08-29 10:18:56","ip":"::1","user_agent":"curl\/7.68.0","user_id":1,"event":"successful_login","details":"User: admin","severity":"INFO"}
